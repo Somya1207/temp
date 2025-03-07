@@ -354,6 +354,25 @@ def load_synthetic_data(args):
             args,
             args.batch_size
         )
+    elif dataset_name == "femnist_z":
+        logging.info("load_data. dataset_name = %s" % dataset_name)
+        (
+            client_num,
+            train_data_num,
+            test_data_num,
+            val_data_num,
+            train_data_global,
+            test_data_global,
+            val_data_global,
+            train_data_local_num_dict,
+            train_data_local_dict,
+            test_data_local_dict,
+            val_data_local_dict,
+            class_num,
+        ) = load_partition_data_mnist(
+            args,
+            args.batch_size
+        )
     elif dataset_name == "femnist_x":
         logging.info("load_data. dataset_name = %s" % dataset_name)
         (

@@ -19,7 +19,7 @@ def max_approx_psi_eval(epsilon_dev_list, f_of_z_dev_list, epsilon_dev_tilde,
     no_progress = 0
     for i, epsilon_dev in enumerate(epsilon_dev_list):
         psi = approx_psi_eval(epsilon_dev, f_of_z_dev_list, epsilon_dev_tilde)
-        wandb.log({"psi": psi, "max_eval": max_eval, "selection_iteration": i})
+        # wandb.log({"psi": psi, "max_eval": max_eval, "selection_iteration": i})
         if i >= burn_in:
             if psi > max_eval:
                 max_eval = psi

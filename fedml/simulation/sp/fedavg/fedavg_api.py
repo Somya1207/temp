@@ -107,9 +107,9 @@ class FedAvgAPI(object):
         # g_simple_model_eval = GradientDecentSimpleModelEval(
         #     max_num_iter=100, max_no_progress=10, eval_freq=1)      
         g_simple_model_eval = SGDSimpleModelEval(
-            max_num_epoch=100, max_no_progress=10, batch_size=200, eval_freq=1)
+            max_num_epoch=100, max_no_progress=10, batch_size=64, eval_freq=1)
         f_simple_model_eval = SGDSimpleModelEval(
-            max_num_epoch=100, max_no_progress=10, batch_size=200, eval_freq=1)
+            max_num_epoch=100, max_no_progress=10, batch_size=64, eval_freq=1)
         learning_eval = FHistoryLearningEvalSGDNoStop(
             num_epochs=60, eval_freq=1, batch_size=200)
         self.model_selection = FHistoryModelSelectionV3(
@@ -260,7 +260,7 @@ class FedAvgAPI(object):
             #     self._local_test_on_all_clients(round_idx)
             # per {frequency_of_the_test} round
             mse, obj_train, obj_dev, curr_eval, max_recent_eval, f_of_z_train, f_of_z_dev = self.eval_global_model()
-            log_results_to_csv("/home/somya/thesis/femnist_x_sgd.csv", round_idx, mse)
+            log_results_to_csv("/home/somya/thesis/femnist_x_gd.csv", round_idx, mse)
             # wandb.log({"round":round_idx,"MSE" :mse})
             # logging.info(f"{round_idx}: {mse:.4f}")
             # print(round_idx,end=" ")

@@ -42,7 +42,7 @@ class FHistoryLearningEvalNoStop(AbstractLearningEval):
 
                 f = f.train()
                 g = g.train()
-            wandb.log({"model_selection_step": i})
+            # wandb.log({"model_selection_step": i})
         return epsilon_dev_history, f_of_z_dev_history
 
     def calc_function_batched(self, function, data, batch_size=1000):

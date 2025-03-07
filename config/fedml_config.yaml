@@ -1,6 +1,6 @@
 common_args:
   training_type: "simulation"
-  random_seed: 40
+  random_seed: 0
   config_version: "dev"
   mlops_api_key: c9356b9c4ce44363bb66366b210201
   mlops_project_name: simulation_2
@@ -21,7 +21,7 @@ train_args:
   federated_optimizer: "FedAvg"
   client_id_list: "[]"
   client_num_in_total: 100
-  client_num_per_round: 100
+  client_num_per_round: 10
   comm_round: 100 # 3 is for quick GitHub sanity check. please change this to your own hyper-parameters (e.g., 200)
   # comm_round: 5
   epochs: 2
@@ -60,10 +60,10 @@ comm_args:
 tracking_args:
   enable_tracking: false
    # When running on MLOps platform(open.fedml.ai), the default log path is at ~/.fedml/fedml-client/fedml/logs/ and ~/.fedml/fedml-server/fedml/logs/
-  enable_wandb: True
-  wandb_key: 3707945e4c94eb3321cc407ff126f7ed4215db82
-  wandb_entity: somya23005
-  wandb_project: fedgmm
+  # enable_wandb: True
+  # wandb_key: 3707945e4c94eb3321cc407ff126f7ed4215db82
+  # wandb_entity: somya23005
+  # wandb_project: fedgmm
   run_name: comm_round-350_local_2_step_fedAvg_sgd
   using_mlops: false
 

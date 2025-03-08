@@ -10,7 +10,7 @@ import pandas
 from game_objectives.approximate_psi_objective import approx_psi_eval
 from optimizers.Customsgd import CustomSGD
 from learning.abstract_learning import AbstractLearning
-from plotting import PlotElement
+from fedgmm.sp_decentralized_mnist_lr_example.plotting import PlotElement
 from scenarios.abstract_scenario import AbstractScenario
 from torch.optim.lr_scheduler import CosineAnnealingLR
 

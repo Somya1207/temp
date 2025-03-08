@@ -13,7 +13,7 @@ from model_selection.simple_model_eval import GradientDecentSimpleModelEval
 from model_selection_class import FHistoryModelSelectionV3
 from game_objectives.simple_moment_objective import OptimalMomentObjective
 from optimizers.oadam import OAdam
-from optimizers.Customsgd import CustomSGD,SGDA
+from optimizers.Customsgd import CustomSGD
 from optimizers.optimizer_factory import OptimizerFactory
 # from optimizers.optimizer_factory import DPOAdam
 from torch.optim import Adam,sgd
@@ -21,7 +21,7 @@ from model_selection.simple_model_eval import SGDSimpleModelEval
 from model_selection.learning_eval_nostop import \
     FHistoryLearningEvalSGDNoStop
 from game_objectives.approximate_psi_objective import approx_psi_eval
-from plotting import PlotElement
+from fedgmm.sp_decentralized_mnist_lr_example.plotting import PlotElement
 import matplotlib.pyplot as plt
 
 def log_results_to_csv(file_path, round_number, mse):
@@ -67,11 +67,10 @@ class FedAvgAPI(object):
 
         logging.info("model = {}".format(model))
         # g_learning_rates = [0.010, 0.050, 0.020]
-        g_learning_rates =[0.01, 0.001,0.0001,0.0005]
+        ##g_learning_rates =[0.01, 0.001,0.0001,0.0005]
         # g_learning_rates = [0.0005]
         # g_learning_rates=[0.1,0.2,0.5]
-        # g_learning_rates =[0.00010, 0.000050, 0.000020]
-        # g_learning_rates = [0.01,0.05,0.02]
+        g_learning_rates =[0.00010, 0.000050, 0.000020]
         game_objectives = [ 
             OptimalMomentObjective(),
         ]
@@ -90,9 +89,9 @@ class FedAvgAPI(object):
         
              learning_setup = {
                       "g_optimizer_factory": OptimizerFactory(
-                       SGDA, lr=float(g_lr)),  # Using SGD with momentum
+                       CustomSGD, lr=float(g_lr), momentum=0.9),  # Using SGD with momentum
                       "f_optimizer_factory": OptimizerFactory(
-                       SGDA, lr=5.0*float(g_lr)),  # Note the increased learning rate for f_optimizer
+                       CustomSGD, lr=5.0*float(g_lr), momentum=0.9),  # Note the increased learning rate for f_optimizer
                       "game_objective": game_objective
 }
             learning_setups.append(learning_setup)
@@ -101,15 +100,15 @@ class FedAvgAPI(object):
         # default_f_opt_factory = OptimizerFactory(
         #     sgd, lr=0.001, betas=(0.5, 0.9))
         default_g_opt_factory = OptimizerFactory(
-            SGDA, lr=0.2)
+            CustomSGD, lr=0.01, momentum=0.9)
         default_f_opt_factory = OptimizerFactory(
-            SGDA, lr=0.2)
+            CustomSGD, lr=0.01, momentum=0.9)
         # g_simple_model_eval = GradientDecentSimpleModelEval(
         #     max_num_iter=100, max_no_progress=10, eval_freq=1)      
         g_simple_model_eval = SGDSimpleModelEval(
-            max_num_epoch=100, max_no_progress=10, batch_size=64, eval_freq=1)
+            max_num_epoch=100, max_no_progress=10, batch_size=200, eval_freq=1)
         f_simple_model_eval = SGDSimpleModelEval(
-            max_num_epoch=100, max_no_progress=10, batch_size=64, eval_freq=1)
+            max_num_epoch=100, max_no_progress=10, batch_size=200, eval_freq=1)
         learning_eval = FHistoryLearningEvalSGDNoStop(
             num_epochs=60, eval_freq=1, batch_size=200)
         self.model_selection = FHistoryModelSelectionV3(
@@ -260,7 +259,7 @@ class FedAvgAPI(object):
             #     self._local_test_on_all_clients(round_idx)
             # per {frequency_of_the_test} round
             mse, obj_train, obj_dev, curr_eval, max_recent_eval, f_of_z_train, f_of_z_dev = self.eval_global_model()
-            log_results_to_csv("/home/somya/thesis/femnist_x_gd.csv", round_idx, mse)
+            log_results_to_csv("/home/somya/thesis/mnist_x_sgd.csv", round_idx, mse)
             # wandb.log({"round":round_idx,"MSE" :mse})
             # logging.info(f"{round_idx}: {mse:.4f}")
             # print(round_idx,end=" ")
@@ -342,7 +341,7 @@ class FedAvgAPI(object):
         # gmm_pred_sgd = model_linear_sgd(self.test_global.x)
         # fedavg_sgd = model_linear_sgd_fedavg(self.test_global.x)
         # sgd_plain = model_linear_sgd_plain(self.test_global.x)
-        mse = float(((g_pred - self.test_global.g) ** 2).mean().item())
+        mse = float(((fedavg_sgd - self.test_global.g) ** 2).mean())
         # print("---------------")
         # print("finished running methodology on scenario %s" % self.args.scenario_name)
         print("MSE on test ------------------------------>>>>>>>>>>>>>>>>>>", mse)
@@ -351,11 +350,11 @@ class FedAvgAPI(object):
         x = self.test_global.x.detach().cpu().numpy()
         g_pred = g_pred.detach().cpu().numpy()
         g_true = self.test_global.g.detach().cpu().numpy()
-        # gmm_pred = gmm_pred.detach().cpu().numpy()
-        # reg_pred = reg_pred.detach().cpu().numpy()
-        # sgd_plain = sgd_plain.detach().cpu().numpy()
-        # gmm_pred_sgd = gmm_pred_sgd.detach().cpu().numpy()
-        # fedavg_sgd = fedavg_sgd.detach().cpu().numpy()
+        gmm_pred = gmm_pred.detach().cpu().numpy()
+        reg_pred = reg_pred.detach().cpu().numpy()
+        sgd_plain = sgd_plain.detach().cpu().numpy()
+        gmm_pred_sgd = gmm_pred_sgd.detach().cpu().numpy()
+        fedavg_sgd = fedavg_sgd.detach().cpu().numpy()
 
         indices = numpy.argsort(x, axis = 0).flatten() 
         x_sort = x[indices]
@@ -364,12 +363,12 @@ class FedAvgAPI(object):
             x_label.append(i)
         g_pred_sort = g_pred[indices]
         g_true_sort = g_true[indices]
-        # gmm_true_sort = gmm_pred[indices]
-        # gmm_sgd_sort = gmm_pred_sgd[indices]
-        # fedavg_sgd_sort = fedavg_sgd[indices]
-        # sgd_plain_sort = sgd_plain[indices]
-        for i in range(len(x_sort)):
-            log_results_to_csv("/home/somya/thesis/abs_FedDeepGMM-GDA.csv", x_sort[i][0], g_pred_sort[i][0])
+        gmm_true_sort = gmm_pred[indices]
+        gmm_sgd_sort = gmm_pred_sgd[indices]
+        fedavg_sgd_sort = fedavg_sgd[indices]
+        sgd_plain_sort = sgd_plain[indices]
+        # for i in range(len(x_sort)):
+        #     log_results_to_csv("/home/somya/thesis/new_FedDeepGMM-SGDA.csv", x_sort[i][0], g_pred_sort[i][0])
         #     log_results_to_csv("/home/somya/thesis/new_Actual Causal Effect.csv", x_sort[i][0], g_true_sort[i][0])
         #     log_results_to_csv("/home/somya/thesis/new_DeepGMM-OAdam.csv", x_sort[i][0], gmm_true_sort[i][0])
         #     log_results_to_csv("/home/somya/thesis/new_DeepGMM-SMDA.csv", x_sort[i][0], gmm_sgd_sort[i][0])
@@ -378,20 +377,20 @@ class FedAvgAPI(object):
         reg_pred_sort = reg_pred[indices]
         pred_plot = PlotElement(x_sort, g_pred_sort, "FedDeepGMM-SGDA")
         true_plot = PlotElement(x_sort, g_true_sort, "Actual Causal Effect")
-        # gmm_plot = PlotElement(x_sort, gmm_true_sort, "DeepGMM-OAdam")
-        # gmm_sgd_plot = PlotElement(x_sort, gmm_sgd_sort, "DeepGMM-SMDA")
-        # fedavg_sgd_plot = PlotElement(x_sort,fedavg_sgd_sort,"FedDeepGMM-SMDA")
-        # sgd_plain_plot = PlotElement(x_sort,sgd_plain_sort,"DeepGMM-SGDA")
+        gmm_plot = PlotElement(x_sort, gmm_true_sort, "DeepGMM-OAdam")
+        gmm_sgd_plot = PlotElement(x_sort, gmm_sgd_sort, "DeepGMM-SMDA")
+        fedavg_sgd_plot = PlotElement(x_sort,fedavg_sgd_sort,"FedDeepGMM-SMDA")
+        sgd_plain_plot = PlotElement(x_sort,sgd_plain_sort,"DeepGMM-SGDA")
 
         # plot_Avg = PlotElement(x_label,fedAvg,"FedAvg")
         # reg_NN_plot = PlotElement(x_sort, reg_pred_sort, "Direct predictions from Neural Network")
-        fig, ax = plt.subplots()
-        ax = true_plot.plot(ax=ax)
+        # fig, ax = plt.subplots()
+        # ax = sgd_plain_plot.plot(ax=ax)
         # ax = true_plot.plot(ax=ax, save_path=f'plots/aaaa_{self.args.run_name}_.png')
         # ax = gmm_plot.plot(ax=ax, save_path=f'plots/aaaa_{self.args.run_name}_.png')
         # ax = gmm_sgd_plot.plot(ax=ax, save_path=f'plots/aaaa_{self.args.run_name}_.png')
         # ax = fedavg_sgd_plot.plot(ax=ax, save_path=f'plots/aaaa_{self.args.run_name}_.png')
-        ax = pred_plot.plot(ax=ax, save_path=f'plots/aaaa_{self.args.run_name}_.png')
+        # ax = pred_plot.plot(ax=ax, save_path=f'plots/aaaa_{self.args.run_name}_.png')
         # ax = reg_NN_plot.plot(ax=ax, save_path=f'plots/aaaacomparison_{self.args.run_name}_.png')
         # mlops.log_training_finished_status()
         # mlops.log_aggregation_finished_status()

@@ -65,24 +65,6 @@ def create(args, output_dim):
             for i, reg in enumerate(reg_models):
                 reg_models[i] = reg.cuda()
         return [g_models, f_models, reg_models]
-    elif args.dataset == 'femnist_xz':
-        g_models = [
-            DefaultCNN(cuda=True),
-        ]
-        f_models = [
-            DefaultCNN(cuda=True),
-        ]
-        reg_models = [
-            DefaultCNN(cuda=True),
-        ]
-        if torch.cuda.is_available():
-            for i, g in enumerate(g_models):
-                g_models[i] = g.cuda()
-            for i, f in enumerate(f_models):
-                f_models[i] = f.cuda()
-            for i, reg in enumerate(reg_models):
-                reg_models[i] = reg.cuda()
-        return [g_models, f_models, reg_models]
     elif args.dataset == "mnist_x":
         g_models = [
             DefaultCNN(cuda=True),
@@ -113,50 +95,6 @@ def create(args, output_dim):
         reg_models = [
            MLPModel(input_dim=1, layer_widths=[20],
                      activation=nn.LeakyReLU).double(),
-        ]
-        if torch.cuda.is_available():
-            for i, g in enumerate(g_models):
-                g_models[i] = g.cuda()
-            for i, f in enumerate(f_models):
-                f_models[i] = f.cuda()
-            for i, reg in enumerate(reg_models):
-                reg_models[i] = reg.cuda()
-        return [g_models, f_models, reg_models]
-    elif args.dataset == "femnist_z":
-        g_models = [
-            MLPModel(input_dim=1, layer_widths=[20],
-                     activation=nn.LeakyReLU).double(),
-        ]
-        f_models = [
-            DefaultCNN(cuda=True),
-        ]
-        reg_models = [
-           MLPModel(input_dim=1, layer_widths=[20],
-                     activation=nn.LeakyReLU).double(),
-        ]
-        if torch.cuda.is_available():
-            for i, g in enumerate(g_models):
-                g_models[i] = g.cuda()
-            for i, f in enumerate(f_models):
-                f_models[i] = f.cuda()
-            for i, reg in enumerate(reg_models):
-                reg_models[i] = reg.cuda()
-        return [g_models, f_models, reg_models]
-    elif args.dataset == "femnist_x":
-        g_models = [
-            DefaultCNN(cuda=True),
-            # MLPModel(input_dim=1, layer_widths=[20],
-            #          activation=nn.LeakyReLU).double(),
-        ]
-        f_models = [
-             MLPModel(input_dim=1, layer_widths=[20],
-                     activation=nn.LeakyReLU).double(),
-            # DefaultCNN(cuda=True)
-        ]
-        reg_models = [
-            DefaultCNN(cuda=True),
-            # MLPModel(input_dim=1, layer_widths=[20],
-            #          activation=nn.LeakyReLU).double(),
         ]
         if torch.cuda.is_available():
             for i, g in enumerate(g_models):

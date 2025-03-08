@@ -25,7 +25,7 @@ from model_selection.learning_eval_nostop import \
     FHistoryLearningEvalGradientDecentNoStop, FHistoryLearningEvalNoStop, \
     FHistoryLearningEvalSGDNoStop
 from game_objectives.approximate_psi_objective import approx_psi_eval
-from plotting import PlotElement
+from fedgmm.sp_decentralized_mnist_lr_example.plotting import PlotElement
 from .client import Client
 
 def log_results_to_csv(file_path, round_number, mse):
